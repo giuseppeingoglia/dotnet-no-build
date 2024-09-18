@@ -1,0 +1,41 @@
+name: Scan
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  Build-and-Scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Setup .NET SDK
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0'
+
+      # Step 3: Restore .NET dependencies
+      #- name: Restore .NET dependencies
+      #  run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj
+
+      # Step 4: Build the .NET project
+      #- name: Build .NET project
+       # run: dotnet build ./src/MySampleDotNetApp/MySampleDotNetApp.csproj --configuration Release
+
+      # Step 5: Run Trivy scan
+      - name: Run Trivy scan
+        uses: docker://aquasec/aqua-scanner
+        with:
+          args: trivy fs --sast --scanners misconfig,vuln,secret .
+        env:
+          AQUA_KEY: ${{ secrets.AQUA_KEY }}
+          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+          GITHUB_TOKEN: ${{ github.token }}
+          AQUA_URL: ${{ vars.AQUA_URL }}
+          CSPM_URL: ${{ vars.CSPM_URL }}
+          TRIVY_RUN_AS_PLUGIN: "aqua"
