@@ -24,8 +24,8 @@ jobs:
           dotnet-version: '9.0'
 
       # Step 3: Restore .NET dependencies
-      #- name: Restore .NET dependencies
-      #  run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj
+      - name: Restore .NET dependencies
+        run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj
 
       # Step 4: Build the .NET project
       #- name: Build .NET project
@@ -43,5 +43,3 @@ jobs:
           AQUA_URL: ${{ vars.AQUA_URL }}
           CSPM_URL: ${{ vars.CSPM_URL }}
           TRIVY_RUN_AS_PLUGIN: "aqua"
-          OVERRIDE_TARGET_BRANCH: "main"
-          OVERRIDE_SOURCE_BRANCH: "test-branch"
