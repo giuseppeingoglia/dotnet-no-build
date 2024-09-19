@@ -1,7 +1,13 @@
 name: Scan
 
 on:
+on:
   push:
+    branches:
+      - main         # Trigger for pushes to main branch
+  pull_request:
+    branches:
+      - main         # Trigger for pull requests targeting main branch
 
 jobs:
   Scan:
