@@ -3,7 +3,8 @@ name: Scan
 on:
   push:
     branches:
-      - main         # Trigger for pushes to main branch
+      - main         # Trigger for pushes to main i and test-branchbranch
+      - test-branch
   pull_request:
     branches:
       - main         # Trigger for pull requests targeting main branch
