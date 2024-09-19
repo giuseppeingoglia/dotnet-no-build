@@ -44,3 +44,4 @@ jobs:
           CSPM_URL: ${{ vars.CSPM_URL }}
           TRIVY_RUN_AS_PLUGIN: "aqua"
           OVERRIDE_TARGET_BRANCH: "main"
+          OVERRIDE_SOURCE_BRANCH: "test-branch"
