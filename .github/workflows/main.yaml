@@ -43,3 +43,4 @@ jobs:
           AQUA_URL: ${{ vars.AQUA_URL }}
           CSPM_URL: ${{ vars.CSPM_URL }}
           TRIVY_RUN_AS_PLUGIN: "aqua"
+          OVERRIDE_TARGET_BRANCH: "main"
