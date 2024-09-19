@@ -1,12 +1,16 @@
 name: Scan
 
 on:
+on:
+  push:
+    branches:
+      - main         # Trigger for pushes to main branch
   pull_request:
     branches:
-      - master
+      - main         # Trigger for pull requests targeting main branch
 
 jobs:
-  Build-and-Scan:
+  Scan:
     runs-on: ubuntu-latest
 
     steps:
