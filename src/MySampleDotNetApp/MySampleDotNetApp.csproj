@@ -33,7 +33,6 @@
           <PackageReference Include="Hangfire.Core" Version="1.7.11" />
           <PackageReference Include="Polly" Version="7.2.0" />
           <PackageReference Include="AutoMapper" Version="10.0.0" /> <!-- newly added -->
-          <PackageReference Include="Xamarin.Android.Support.Design" Version="28.0.1" /> <!-- newly added -->
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Validators\" />
