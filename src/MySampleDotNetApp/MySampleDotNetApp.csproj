@@ -31,7 +31,10 @@
           <PackageReference Include="NSwag.AspNetCore" Version="13.3.0" />
           <PackageReference Include="Hangfire.Core" Version="1.7.11" />
           <PackageReference Include="Polly" Version="7.2.0" />
-          <PackageReference Include="AutoMapper" Version="10.0.0" /> <!-- newly added -->
+          <PackageReference Include="AutoMapper" Version="10.0.0" />
+	  <PackageReference Include="System.Text.Encodings.Web" Version="4.5.0" /> <!-- Vulnerable package -->
+          <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.0" /> <!-- Vulnerable package -->
+
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Validators\" />
