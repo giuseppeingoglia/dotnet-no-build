@@ -3,8 +3,7 @@ name: Scan
 on:
   push:
     branches:
-      - main         # Trigger for pushes to main i and test-branchbranch
-      #- test-branch
+      - main         # Trigger for pushes to main branch
   pull_request:
     branches:
       - main         # Trigger for pull requests targeting main branch
@@ -28,19 +27,15 @@ jobs:
       - name: Restore .NET dependencies
         run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj
 
-      # Step 4: Build the .NET project
-      #- name: Build .NET project
-       # run: dotnet build ./src/MySampleDotNetApp/MySampleDotNetApp.csproj --configuration Release
-
       # Step 5: Run Trivy scan
       - name: Run Trivy scan
         uses: docker://aquasec/aqua-scanner
         with:
-          args: trivy fs --dotnet-proj --sast --scanners misconfig,vuln,secret $GITHUB_WORKSPACE
+          args: trivy fs --reachability --dotnet-proj --scanners misconfig,vuln,secret /github/workspace
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AQUA_URL: ${{ vars.AQUA_URL }}
           CSPM_URL: ${{ vars.CSPM_URL }}
           TRIVY_RUN_AS_PLUGIN: "aqua"
