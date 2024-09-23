@@ -36,7 +36,7 @@ jobs:
       - name: Run Trivy scan
         uses: docker://aquasec/aqua-scanner
         with:
-          args: trivy fs --dotnet-proj --sast --scanners misconfig,vuln,secret $GITHUB_WORKSPACE
+          args: trivy fs --dotnet-proj --sast --scanners misconfig,vuln,secret "$GITHUB_WORKSPACE"
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
