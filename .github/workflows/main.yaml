@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main         # Trigger for pushes to main branch
+      - case-44189
   pull_request:
     branches:
       - main         # Trigger for pull requests targeting main branch
