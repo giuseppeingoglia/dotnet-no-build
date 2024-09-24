@@ -1,51 +1,50 @@
-name: Scan Offline
-
-on:
-  push:
-    branches:
-      - trivy-offline   # Trigger for the feature branch
-
 jobs:
   Scan:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository code
+      # Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      # Step 2: Setup .NET SDK
+      # Setup .NET SDK
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0'
 
-      # Step 3: Restore .NET dependencies and update lock file
-      - name: Restore and update lock file
-        run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj --use-lock-file --force-evaluate
+      # Restore .NET dependencies
+      - name: Restore dependencies
+        run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj
 
-      # Step 4: Cache Trivy database
+      # Cache Trivy database
       - name: Cache Trivy database
         uses: actions/cache@v3
         with:
           path: /tmp/.cache/trivy
-          key: trivy-db-${{ runner.os }}-${{ hashFiles('**/your-lock-file.lock') }}  # You can use a specific file that changes when dependencies change
+          key: trivy-db-${{ runner.os }}  # Simple cache key without lock file
           restore-keys: |
             trivy-db-${{ runner.os }}-
+            trivy-db-
+        env:
+          DOTNET_ROOT: /usr/share/dotnet
 
-      # Step 5: Download Trivy databases using the Aqua Scanner image if not cached
+      # Step to run Trivy database update if cache miss
       - name: Download Trivy databases
         id: download-db
         uses: docker://aquasec/aqua-scanner
         with:
           args: trivy fs --download-db-only
+        env:
+          AQUA_KEY: ${{ secrets.AQUA_KEY }}
+          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AQUA_URL: ${{ vars.AQUA_URL }}
+          CSPM_URL: ${{ vars.CSPM_URL }}
           TRIVY_RUN_AS_PLUGIN: "aqua"
-        # Check if the cache exists, only then execute this step
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'  # Only run if cache was missed
 
-      # Step 6: Run Trivy scan (Offline) with persistent database
+      # Run Trivy scan
       - name: Run Trivy scan (Offline)
         uses: docker://aquasec/aqua-scanner
         with:
