@@ -3,24 +3,21 @@ name: Download and Populate Trivy Databases
 on:
   push:
     branches:
-      - trivy-offline  # Trigger for the feature branch
+      - trivy-offline
 
 jobs:
   DownloadAndCacheDB:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ensure full history for potential references
+          fetch-depth: 0
 
-      # Step 2: Create Cache Directory
       - name: Create Cache Directory
-        run: mkdir -p /tmp/trivy  # Create a local directory for caching
+        run: mkdir -p /tmp/.cache/trivy
 
-      # Step 3: Download Trivy databases
       - name: Download Trivy Databases
         id: download_trivy
         run: |
@@ -31,7 +28,7 @@ jobs:
             --db-repository ghcr.io/aquasecurity/trivy-db:2 \
             --java-db-repository ghcr.io/aquasecurity/trivy-java-db:1 \
             --checks-bundle-repository ghcr.io/aquasecurity/trivy-checks:0
-      # Step 4: Check contents of the cache directory after the download
+
       - name: Verify Cache Directory
         run: |
           echo "Contents of /tmp/.cache/trivy:"
@@ -43,12 +40,12 @@ jobs:
             echo "Databases not found!"
             exit 1
           fi
-      # Step 5: Cache Trivy DB
+
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
-          path: /tmp/.cache/trivy  # Use the correct cache path for Trivy
-          key: trivy-db-${{ runner.os }}-${{ github.sha }}  # Use a unique key
+          path: /tmp/.cache/trivy
+          key: trivy-db-${{ runner.os }}-${{ github.ref }}
           restore-keys: |
             trivy-db-${{ runner.os }}-
             trivy-db-
