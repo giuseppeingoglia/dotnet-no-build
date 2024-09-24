@@ -41,6 +41,17 @@ jobs:
             exit 1
           fi
 
+      - name: Check for Cache Path Before Caching
+        run: |
+          echo "Checking contents of the cache path for caching..."
+          if [ -d $HOME/.cache/trivy/db ]; then
+            echo "Cache path exists. Contents:"
+            ls -la $HOME/.cache/trivy/db
+          else
+            echo "Cache path does not exist!"
+            exit 1
+          fi
+
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
