@@ -16,12 +16,12 @@ jobs:
           fetch-depth: 0
 
       - name: Create Cache Directory
-        run: mkdir -p /tmp/.cache/trivy
+        run: mkdir -p $HOME/.cache/trivy
 
       - name: Download Trivy Databases
         id: download_trivy
         run: |
-          docker run -v /tmp/.cache/trivy:/tmp/.cache/trivy aquasec/aqua-scanner trivy image \
+          docker run -v $HOME/.cache/trivy:/tmp/.cache/trivy aquasec/aqua-scanner trivy image \
             --cache-dir /tmp/.cache/trivy \
             --download-db-only \
             --no-progress \
@@ -31,11 +31,11 @@ jobs:
 
       - name: Verify Cache Directory
         run: |
-          echo "Contents of /tmp/.cache/trivy:"
-          ls -la /tmp/.cache/trivy
-          if [ -d /tmp/.cache/trivy/db ]; then
+          echo "Contents of $HOME/.cache/trivy:"
+          ls -la $HOME/.cache/trivy
+          if [ -d $HOME/.cache/trivy/db ]; then
             echo "Databases downloaded successfully."
-            ls -la /tmp/.cache/trivy/db
+            ls -la $HOME/.cache/trivy/db
           else
             echo "Databases not found!"
             exit 1
@@ -44,7 +44,7 @@ jobs:
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
-          path: /tmp/.cache/trivy
+          path: $HOME/.cache/trivy
           key: trivy-db-${{ runner.os }}-${{ github.ref }}
           restore-keys: |
             trivy-db-${{ runner.os }}-
