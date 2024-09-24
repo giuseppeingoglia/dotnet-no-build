@@ -31,7 +31,7 @@ jobs:
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
-          path: ~/.cache/trivy
+          path: /tmp/.cache/trivy
           key: trivy-db-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}  # Use a unique key
           restore-keys: |
             trivy-db-${{ runner.os }}-
