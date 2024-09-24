@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - main         # Trigger for pushes to main branch
-      - case-44189
+      - case-44189   # Trigger for the feature branch
   pull_request:
     branches:
-      - main         # Trigger for pull requests targeting main branch
+      - main         # Trigger for pull requests targeting the main branch
 
 jobs:
   Scan:
@@ -26,15 +26,15 @@ jobs:
         with:
           dotnet-version: '9.0'
 
-      # Step 3: Restore .NET dependencies
-      - name: Restore .NET dependencies
-        run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj
+      # Step 3: Restore .NET dependencies and update lock file
+      - name: Restore and update lock file
+        run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj --use-lock-file --force-evaluate
 
-      # Step 5: Run Trivy scan
+      # Step 4: Run Trivy scan
       - name: Run Trivy scan
         uses: docker://aquasec/aqua-scanner
         with:
-          args: trivy fs --sast --reachability --dotnet-proj --scanners misconfig,vuln,secret /github/workspace
+          args: trivy fs --sast --reachability --scanners misconfig,vuln,secret /github/workspace
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}

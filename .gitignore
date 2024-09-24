@@ -79,8 +79,8 @@ ScaffoldingReadMe.txt
 [Mm]igrations/
 
 # dotnet specific files
-project.lock.json
-project.fragment.lock.json
+#project.lock.json
+#project.fragment.lock.json
 
 # Windows image file caches
 Thumbs.db
