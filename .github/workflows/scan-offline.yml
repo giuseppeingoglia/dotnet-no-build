@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - trivy-offline   # Trigger for the feature branch
+
 jobs:
   Scan:
     runs-on: ubuntu-latest
@@ -25,12 +26,17 @@ jobs:
       - name: Restore and update lock file
         run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj --use-lock-file --force-evaluate
 
-      # Step 4: Run Trivy scan in offline mode
+      # Step 4: Download Trivy databases (this is essential for offline mode)
+      - name: Download Trivy databases
+        run: |
+          trivy fs --download-db-only
+
+      # Step 5: Run Trivy scan in offline mode
       - name: Run Trivy scan (Offline)
         uses: docker://aquasec/aqua-scanner
         with:
           args: |
-            trivy fs --offline-scan --skip-db-update --skip-java-db-update --skip-check-update --sast --reachability --scanners misconfig,vuln,secret /github/workspace
+            trivy fs --offline-scan --skip-java-db-update --skip-check-update --sast --reachability --scanners misconfig,vuln,secret /github/workspace
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
@@ -38,4 +44,3 @@ jobs:
           AQUA_URL: ${{ vars.AQUA_URL }}
           CSPM_URL: ${{ vars.CSPM_URL }}
           TRIVY_RUN_AS_PLUGIN: "aqua"
-
