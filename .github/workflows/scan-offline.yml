@@ -1,4 +1,4 @@
-name: Scan Offline
+name: Download and Populate Trivy Databases
 
 on:
   push:
@@ -6,33 +6,34 @@ on:
       - trivy-offline  # Trigger for the feature branch
 
 jobs:
-  Scan:
+  DownloadAndCacheDB:
     runs-on: ubuntu-latest
 
     steps:
-
       # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Step 2: Setup .NET SDK
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+      # Step 2: Download Trivy databases
+      - name: Download Trivy Databases
+        uses: docker://aquasec/aqua-scanner
         with:
-          dotnet-version: '9.0'
+          args: |
+            trivy image \
+              --cache-dir ~/.cache/trivy \
+              --download-db-only \
+              --no-progress \
+              --db-repository ghcr.io/aquasecurity/trivy-db:2 \
+              --java-db-repository ghcr.io/aquasecurity/trivy-java-db:1
 
-      # Step 3: Restore .NET dependencies and update lock file
-      - name: Restore and update lock file
-        run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj --use-lock-file --force-evaluate
-
-      # Step 4: Download Trivy DB if available from cache
+      # Step 3: Cache Trivy DB
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
-          path: /tmp/.cache/trivy
-          key: trivy-db-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}  # Use a unique key
+          path: ~/.cache/trivy  # Use the correct cache path for Trivy
+          key: trivy-db-${{ runner.os }}-${{ github.sha }}  # Use a unique key
           restore-keys: |
             trivy-db-${{ runner.os }}-
             trivy-db-
