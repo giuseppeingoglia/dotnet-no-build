@@ -1,55 +1,47 @@
+name: Scan Offline
+
+on:
+  push:
+    branches:
+      - trivy-offline  # Trigger for the feature branch
+
 jobs:
   Scan:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout code
+      # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Setup .NET SDK
+      # Step 2: Setup .NET SDK
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0'
 
-      # Restore .NET dependencies
-      - name: Restore dependencies
-        run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj
+      # Step 3: Restore .NET dependencies and update lock file
+      - name: Restore and update lock file
+        run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj --use-lock-file --force-evaluate
 
-      # Cache Trivy database
-      - name: Cache Trivy database
+      # Step 4: Download Trivy DB if available from cache
+      - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
           path: /tmp/.cache/trivy
-          key: trivy-db-${{ runner.os }}  # Simple cache key without lock file
+          key: trivy-db-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}  # Use a unique key
           restore-keys: |
             trivy-db-${{ runner.os }}-
             trivy-db-
-        env:
-          DOTNET_ROOT: /usr/share/dotnet
 
-      # Step to run Trivy database update if cache miss
-      - name: Download Trivy databases
-        id: download-db
-        uses: docker://aquasec/aqua-scanner
-        with:
-          args: trivy fs --download-db-only
-        env:
-          AQUA_KEY: ${{ secrets.AQUA_KEY }}
-          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AQUA_URL: ${{ vars.AQUA_URL }}
-          CSPM_URL: ${{ vars.CSPM_URL }}
-          TRIVY_RUN_AS_PLUGIN: "aqua"
-        if: steps.cache.outputs.cache-hit != 'true'  # Only run if cache was missed
-
-      # Run Trivy scan
+      # Step 5: Run Trivy scan in offline mode
       - name: Run Trivy scan (Offline)
         uses: docker://aquasec/aqua-scanner
         with:
           args: |
-            trivy fs --offline-scan --skip-db-update --skip-java-db-update --skip-check-update --sast --reachability --scanners misconfig,vuln,secret --cache-dir /tmp/.cache/trivy /github/workspace
+            trivy fs --offline-scan --skip-db-update --skip-java-db-update --skip-check-update --sast --reachability --scanners misconfig,vuln,secret /github/workspace
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
@@ -57,3 +49,11 @@ jobs:
           AQUA_URL: ${{ vars.AQUA_URL }}
           CSPM_URL: ${{ vars.CSPM_URL }}
           TRIVY_RUN_AS_PLUGIN: "aqua"
+          TRIVY_CACHE_DIR: /tmp/.cache/trivy  # Specify the cache directory
+
+      # Step 6: Cleanup Cache Lock File
+      - name: Cleanup Trivy Cache Lock File
+        run: |
+          if [ -f /tmp/.cache/trivy/lock ]; then
+            rm /tmp/.cache/trivy/lock
+          fi
