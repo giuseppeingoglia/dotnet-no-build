@@ -52,11 +52,16 @@ jobs:
             exit 1
           fi
 
+      - name: List Cache Directory Before Caching
+        run: |
+          echo "Listing contents of the cache directory:"
+          ls -la $HOME/.cache/trivy/db
+
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
-          path: $HOME/.cache/trivy/db  # Cache the entire DB directory
-          key: trivy-db-${{ runner.os }}-${{ github.sha }}  # Use unique key for caching
+          path: $HOME/.cache/trivy/db/**  # Use wildcard to include all files
+          key: trivy-db-${{ runner.os }}-${{ github.sha }}  # Unique key
           restore-keys: |
             trivy-db-${{ runner.os }}-
             trivy-db-
