@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
 
       - name: Create Cache Directory
-        run: mkdir -p $HOME/.cache/trivy
+        run: mkdir -p $HOME/.cache/trivy/db  # Ensure the db directory exists
 
       - name: Download Trivy Databases
         id: download_trivy
@@ -55,7 +55,7 @@ jobs:
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
-          path: $HOME/.cache/trivy/db
+          path: $HOME/.cache/trivy/db/*  # Ensure we cache the contents of the db directory
           key: trivy-db-${{ runner.os }}-${{ github.ref }}
           restore-keys: |
             trivy-db-${{ runner.os }}-
