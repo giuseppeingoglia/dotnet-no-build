@@ -26,19 +26,31 @@ jobs:
       - name: Restore and update lock file
         run: dotnet restore ./src/MySampleDotNetApp/MySampleDotNetApp.csproj --use-lock-file --force-evaluate
 
-      # Step 4: Download Trivy databases using the Aqua Scanner image
+      # Step 4: Cache Trivy database
+      - name: Cache Trivy database
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.cache/trivy
+          key: trivy-db-${{ runner.os }}-${{ hashFiles('**/your-lock-file.lock') }}  # You can use a specific file that changes when dependencies change
+          restore-keys: |
+            trivy-db-${{ runner.os }}-
+
+      # Step 5: Download Trivy databases using the Aqua Scanner image if not cached
       - name: Download Trivy databases
         id: download-db
         uses: docker://aquasec/aqua-scanner
         with:
           args: trivy fs --download-db-only
+          TRIVY_RUN_AS_PLUGIN: "aqua"
+        # Check if the cache exists, only then execute this step
+        if: steps.cache.outputs.cache-hit != 'true'
 
-      # Step 5: Run Trivy scan in offline mode
+      # Step 6: Run Trivy scan (Offline) with persistent database
       - name: Run Trivy scan (Offline)
         uses: docker://aquasec/aqua-scanner
         with:
           args: |
-            trivy fs --offline-scan --skip-db-update --skip-java-db-update --skip-check-update --cache-dir /tmp/.cache/trivy --sast --reachability --scanners misconfig,vuln,secret /github/workspace
+            trivy fs --offline-scan --skip-db-update --skip-java-db-update --skip-check-update --sast --reachability --scanners misconfig,vuln,secret --cache-dir /tmp/.cache/trivy /github/workspace
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
@@ -46,5 +58,3 @@ jobs:
           AQUA_URL: ${{ vars.AQUA_URL }}
           CSPM_URL: ${{ vars.CSPM_URL }}
           TRIVY_RUN_AS_PLUGIN: "aqua"
-          # Mount the downloaded database path
-          TRIVY_CACHE_DIR: /tmp/.cache/trivy  # Default cache directory for Trivy
