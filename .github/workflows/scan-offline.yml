@@ -29,7 +29,7 @@ jobs:
             --java-db-repository ghcr.io/aquasecurity/trivy-java-db:1 \
             --checks-bundle-repository ghcr.io/aquasecurity/trivy-checks:0
 
-      - name: Verify Cache Directory
+      - name: Verify Cache Directory After Download
         run: |
           echo "Contents of $HOME/.cache/trivy:"
           ls -la $HOME/.cache/trivy
@@ -44,7 +44,7 @@ jobs:
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
-          path: $HOME/.cache/trivy
+          path: $HOME/.cache/trivy/db
           key: trivy-db-${{ runner.os }}-${{ github.ref }}
           restore-keys: |
             trivy-db-${{ runner.os }}-
