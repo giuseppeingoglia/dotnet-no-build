@@ -22,7 +22,7 @@ jobs:
         with:
           args: |
             trivy image \
-              --cache-dir ~/.cache/trivy \
+              --cache-dir /tmp/.cache/trivy \
               --download-db-only \
               --no-progress \
               --db-repository ghcr.io/aquasecurity/trivy-db:2 \
@@ -32,7 +32,7 @@ jobs:
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
-          path: ~/.cache/trivy  # Use the correct cache path for Trivy
+          path: /tmp/.cache/trivy  # Use the correct cache path for Trivy
           key: trivy-db-${{ runner.os }}-${{ github.sha }}  # Use a unique key
           restore-keys: |
             trivy-db-${{ runner.os }}-
