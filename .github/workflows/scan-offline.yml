@@ -14,9 +14,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Ensure full history for potential references
 
-      # Step 2: Download Trivy databases
+      # Step 2: Create a directory for caching
+      - name: Create Cache Directory
+        run: mkdir -p /tmp/trivy  # Create a local directory for caching
+
+      # Step 3: Download Trivy databases
       - name: Download Trivy Databases
         uses: docker://aquasec/aqua-scanner
         with:
@@ -26,14 +30,19 @@ jobs:
               --download-db-only \
               --no-progress \
               --db-repository ghcr.io/aquasecurity/trivy-db:2 \
-              --java-db-repository ghcr.io/aquasecurity/trivy-java-db:1
+              --java-db-repository ghcr.io/aquasecurity/trivy-java-db:1 \
+              --checks-bundle-repository ghcr.io/aquasecurity/trivy-checks:0
 
-      # Step 3: Cache Trivy DB
+      # Step 4: Cache Trivy DB
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
-          path: /tmp/.cache/trivy  # Use the correct cache path for Trivy
+          path: /tmp/trivy  # Use the correct cache path for Trivy
           key: trivy-db-${{ runner.os }}-${{ github.sha }}  # Use a unique key
           restore-keys: |
             trivy-db-${{ runner.os }}-
             trivy-db-
+
+      # Optional Step: List the cached database files for verification
+      - name: List Cached Trivy DB Files
+        run: ls /tmp/trivy/db

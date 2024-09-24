@@ -1,0 +1,3 @@
+Running passed command: trivy image --cache-dir /tmp/.cache/trivy --download-db-only --no-progress --db-repository ghcr.io/aquasecurity/trivy-db:2
+2024-09-24T16:46:40Z	[94mINFO[0m	[db] Need to update DB
+2024-09-24T16:46:40Z	[94mINFO[0m	[db] Downloading DB...	repository="ghcr.io/aquasecurity/trivy-db:2"
