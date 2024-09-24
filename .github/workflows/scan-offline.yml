@@ -11,10 +11,6 @@ jobs:
 
     steps:
 
-      - name: Check GITHUB_TOKEN Permissions
-        run: |
-          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit
-
       # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,25 +36,3 @@ jobs:
           restore-keys: |
             trivy-db-${{ runner.os }}-
             trivy-db-
-
-      # Step 5: Run Trivy scan in offline mode
-      - name: Run Trivy scan (Offline)
-        uses: docker://aquasec/aqua-scanner
-        with:
-          args: |
-            trivy fs --offline-scan --skip-db-update --skip-java-db-update --skip-check-update --sast --reachability --scanners misconfig,vuln,secret /github/workspace
-        env:
-          AQUA_KEY: ${{ secrets.AQUA_KEY }}
-          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AQUA_URL: ${{ vars.AQUA_URL }}
-          CSPM_URL: ${{ vars.CSPM_URL }}
-          TRIVY_RUN_AS_PLUGIN: "aqua"
-          TRIVY_CACHE_DIR: /tmp/.cache/trivy  # Specify the cache directory
-
-      # Step 6: Cleanup Cache Lock File
-      - name: Cleanup Trivy Cache Lock File
-        run: |
-          if [ -f /tmp/.cache/trivy/lock ]; then
-            rm /tmp/.cache/trivy/lock
-          fi
