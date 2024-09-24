@@ -44,19 +44,19 @@ jobs:
       - name: Check for Cache Path Before Caching
         run: |
           echo "Checking contents of the cache path for caching..."
-          if [ -d $HOME/.cache/trivy/db ]; then
-            echo "Cache path exists. Contents:"
+          if [ -d $HOME/.cache/trivy/db ] && [ "$(ls -A $HOME/.cache/trivy/db)" ]; then
+            echo "Cache path exists and contains files. Contents:"
             ls -la $HOME/.cache/trivy/db
           else
-            echo "Cache path does not exist!"
+            echo "Cache path does not exist or is empty!"
             exit 1
           fi
 
       - name: Cache Trivy DB
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
-          path: $HOME/.cache/trivy/db/*  # Ensure we cache the contents of the db directory
-          key: trivy-db-${{ runner.os }}-${{ github.ref }}
+          path: $HOME/.cache/trivy/db/*
+          key: trivy-db-${{ runner.os }}-${{ github.sha }}
           restore-keys: |
             trivy-db-${{ runner.os }}-
             trivy-db-
