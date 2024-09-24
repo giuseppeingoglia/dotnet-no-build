@@ -21,7 +21,7 @@ jobs:
       - name: Download Trivy Databases
         id: download_trivy
         run: |
-          docker run -v $HOME/.cache/trivy:/tmp/.cache/trivy aquasec/aqua-scanner trivy image \
+          docker run --user $(id -u):$(id -g) -v $HOME/.cache/trivy:/tmp/.cache/trivy aquasec/aqua-scanner trivy image \
             --cache-dir /tmp/.cache/trivy \
             --download-db-only \
             --no-progress \
