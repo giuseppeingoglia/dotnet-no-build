@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
 
       - name: Create Cache Directory
-        run: mkdir -p $HOME/.cache/trivy/db  # Ensure the db directory exists
+        run: mkdir -p $HOME/.cache/trivy/db
 
       - name: Download Trivy Databases
         id: download_trivy
@@ -41,12 +41,11 @@ jobs:
             exit 1
           fi
 
-      - name: Check for Cache Path Before Caching
+      - name: Check Cache Path for Caching
         run: |
           echo "Checking contents of the cache path for caching..."
           if [ -d $HOME/.cache/trivy/db ] && [ "$(ls -A $HOME/.cache/trivy/db)" ]; then
-            echo "Cache path exists and contains files. Contents:"
-            ls -la $HOME/.cache/trivy/db
+            echo "Cache path exists and contains files."
           else
             echo "Cache path does not exist or is empty!"
             exit 1
@@ -60,8 +59,8 @@ jobs:
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
-          path: $HOME/.cache/trivy/db/**  # Use wildcard to include all files
-          key: trivy-db-${{ runner.os }}-${{ github.sha }}  # Unique key
+          path: $HOME/.cache/trivy/db/trivy.db  # Cache the main database file specifically
+          key: trivy-db-${{ runner.os }}-${{ github.sha }}  # Unique key based on OS and SHA
           restore-keys: |
             trivy-db-${{ runner.os }}-
             trivy-db-
