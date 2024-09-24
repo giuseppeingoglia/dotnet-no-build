@@ -22,16 +22,15 @@ jobs:
 
       # Step 3: Download Trivy databases
       - name: Download Trivy Databases
-        uses: docker://aquasec/aqua-scanner
-        with:
-          args: |
-            image --cache-dir /tmp/.cache/trivy \
+        id: download_trivy
+        run: |
+          docker run -v /tmp/.cache/trivy:/tmp/.cache/trivy aquasec/aqua-scanner trivy image \
+            --cache-dir /tmp/.cache/trivy \
             --download-db-only \
             --no-progress \
             --db-repository ghcr.io/aquasecurity/trivy-db:2 \
             --java-db-repository ghcr.io/aquasecurity/trivy-java-db:1 \
             --checks-bundle-repository ghcr.io/aquasecurity/trivy-checks:0
-
       # Step 4: Check contents of the cache directory after the download
       - name: Verify Cache Directory
         run: |
@@ -44,7 +43,6 @@ jobs:
             echo "Databases not found!"
             exit 1
           fi
-
       # Step 5: Cache Trivy DB
       - name: Cache Trivy DB
         uses: actions/cache@v3
