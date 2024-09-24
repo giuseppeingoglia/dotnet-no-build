@@ -23,20 +23,20 @@ jobs:
       # Step 3: Download Trivy databases
       - name: Download Trivy Databases
         id: download_trivy
-        uses: docker://aquasec/aqua-scanner
-        with:
-          args: |
-            trivy image \
-              --cache-dir /tmp/.cache/trivy \
-              --download-db-only \
-              --no-progress \
-              --db-repository ghcr.io/aquasecurity/trivy-db:2 \
-              --java-db-repository ghcr.io/aquasecurity/trivy-java-db:1 \
-              --checks-bundle-repository ghcr.io/aquasecurity/trivy-checks:0
-
-      # Step 4: Check if databases were downloaded
-      - name: Verify Database Download
         run: |
+          docker run -v /tmp/.cache/trivy:/tmp/.cache/trivy aquasec/aqua-scanner trivy image \
+            --cache-dir /tmp/.cache/trivy \
+            --download-db-only \
+            --no-progress \
+            --db-repository ghcr.io/aquasecurity/trivy-db:2 \
+            --java-db-repository ghcr.io/aquasecurity/trivy-java-db:1 \
+            --checks-bundle-repository ghcr.io/aquasecurity/trivy-checks:0
+
+      # Step 4: Check contents of the cache directory after the download
+      - name: Verify Cache Directory
+        run: |
+          echo "Contents of /tmp/.cache/trivy:"
+          ls -la /tmp/.cache/trivy
           if [ -d /tmp/.cache/trivy/db ]; then
             echo "Databases downloaded successfully."
             ls -la /tmp/.cache/trivy/db
@@ -54,7 +54,3 @@ jobs:
           restore-keys: |
             trivy-db-${{ runner.os }}-
             trivy-db-
-
-      # Optional Step: List the cached database files for verification
-      - name: List Cached Trivy DB Files
-        run: ls -la /tmp/.cache/trivy/db || echo "No cached files found."
