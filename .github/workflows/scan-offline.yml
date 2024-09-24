@@ -18,21 +18,33 @@ jobs:
 
       # Step 2: Create Cache Directory
       - name: Create Cache Directory
-        run: mkdir -p /tmp/trivy  # Create a local directory for caching
+        run: mkdir -p /tmp/.cache/trivy  # Create a local directory for caching
 
-      # Step 3: Download Trivy databases
+      # Step 3: Cache Trivy DB
+      - name: Restore Trivy DB Cache
+        id: cache_trivy
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.cache/trivy  # Cache path
+          key: trivy-db-${{ runner.os }}-${{ github.ref }}  # Use branch ref for key
+          restore-keys: |
+            trivy-db-${{ runner.os }}-
+            trivy-db-
+
+      # Step 4: Download Trivy databases if not cached
       - name: Download Trivy Databases
-        id: download_trivy
-        run: |
-          docker run -v /tmp/.cache/trivy:/tmp/.cache/trivy aquasec/aqua-scanner trivy image \
-            --cache-dir /tmp/.cache/trivy \
+        uses: docker://aquasec/aqua-scanner
+        with:
+          args: |
+            image --cache-dir /tmp/.cache/trivy \
             --download-db-only \
             --no-progress \
             --db-repository ghcr.io/aquasecurity/trivy-db:2 \
             --java-db-repository ghcr.io/aquasecurity/trivy-java-db:1 \
             --checks-bundle-repository ghcr.io/aquasecurity/trivy-checks:0
+        if: steps.cache_trivy.outputs.cache-hit != 'true'  # Only download if cache miss
 
-      # Step 4: Check contents of the cache directory after the download
+      # Step 5: Check contents of the cache directory after the download
       - name: Verify Cache Directory
         run: |
           echo "Contents of /tmp/.cache/trivy:"
@@ -44,13 +56,3 @@ jobs:
             echo "Databases not found!"
             exit 1
           fi
-
-      # Step 5: Cache Trivy DB
-      - name: Cache Trivy DB
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.cache/trivy  # Use the correct cache path for Trivy
-          key: trivy-db-${{ runner.os }}-${{ github.sha }}  # Use a unique key
-          restore-keys: |
-            trivy-db-${{ runner.os }}-
-            trivy-db-
