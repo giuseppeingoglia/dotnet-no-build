@@ -34,14 +34,14 @@ jobs:
       - name: Run Trivy scan
         run: |
           docker run \
-            -e AQUA_KEY: "${{ secrets.AQUA_KEY }}" \
-            -e AQUA_SECRET: "${{ secrets.AQUA_SECRET }}" \
-            -e GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" \
-            -e AQUA_URL: "${{ vars.AQUA_URL }}" \
-            -e CSPM_URL: "${{ vars.CSPM_URL }}" \ 
-            -e TRIVY_RUN_AS_PLUGIN: "aqua" \
-            -e TRIVY_USERNAME: "${{ secrets.TRIVY_USERNAME }}" \
-            -e TRIVY_PASSWORD: "${{ secrets.TRIVY_PASSWORD }}" \
+            -e AQUA_KEY="${{ secrets.AQUA_KEY }}" \
+            -e AQUA_SECRET="${{ secrets.AQUA_SECRET }}" \
+            -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+            -e AQUA_URL="${{ vars.AQUA_URL }}" \
+            -e CSPM_URL="${{ vars.CSPM_URL }}" \ 
+            -e TRIVY_RUN_AS_PLUGIN="aqua" \
+            -e TRIVY_USERNAME="${{ secrets.TRIVY_USERNAME }}" \
+            -e TRIVY_PASSWORD="${{ secrets.TRIVY_PASSWORD }}" \
             -v ${{ github.workspace }}:/scanning \
             -v ${{ runner.temp }}/trivy_cache:/tmp/.cache/ \
             aquasec/aqua-scanner:latest \
