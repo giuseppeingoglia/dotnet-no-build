@@ -34,15 +34,15 @@ jobs:
       - name: Run Trivy scan
         run: |
           docker run \
-            -e AQUA_KEY="${{ secrets.AQUA_KEY }}" \
-            -e AQUA_SECRET="${{ secrets.AQUA_SECRET }}" \
-            -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
-            -e AQUA_URL="${{ vars.AQUA_URL }}" \
-            -e CSPM_URL="${{ vars.CSPM_URL }}" \ 
-            -e TRIVY_RUN_AS_PLUGIN="aqua" \
-            -e TRIVY_USERNAME="${{ secrets.TRIVY_USERNAME }}" \
-            -e TRIVY_PASSWORD="${{ secrets.TRIVY_PASSWORD }}" \
-            -v ${{ github.workspace }}:/scanning \
-            -v ${{ runner.temp }}/trivy_cache:/tmp/.cache/ \
-            aquasec/aqua-scanner:latest \
-            trivy fs --sast --reachability --scanners misconfig,vuln,secret --db-repository=registry.aquasec.com/trivy-db:2 --checks-bundle-repository=registry.aquasec.com/trivy-checks:1 --java-db-repository=registry.aquasec.com/trivy-java-db:1 /github/workspace
+          -e AQUA_KEY="${{ secrets.AQUA_KEY }}" \
+          -e AQUA_SECRET="${{ secrets.AQUA_SECRET }}" \
+          -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+          -e AQUA_URL="${{ vars.AQUA_URL }}" \
+          -e CSPM_URL="${{ vars.CSPM_URL }}" \
+          -e TRIVY_RUN_AS_PLUGIN="aqua" \
+          -e TRIVY_USERNAME="${{ secrets.TRIVY_USERNAME }}" \
+          -e TRIVY_PASSWORD="${{ secrets.TRIVY_PASSWORD }}" \
+          -v ${{ github.workspace }}:/scanning \
+          -v ${{ runner.temp }}/trivy_cache:/tmp/.cache/ \
+          aquasec/aqua-scanner:latest \
+          trivy fs --sast --reachability --scanners misconfig,vuln,secret --db-repository=registry.aquasec.com/trivy-db:2 --checks-bundle-repository=registry.aquasec.com/trivy-checks:1 --java-db-repository=registry.aquasec.com/trivy-java-db:1 /scanning
