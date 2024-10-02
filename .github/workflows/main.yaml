@@ -34,7 +34,7 @@ jobs:
       - name: Run Trivy scan
         uses: docker://aquasec/aqua-scanner
         with:
-          args: trivy fs --sast --reachability --scanners misconfig,vuln,secret /github/workspace
+          args: trivy fs --sast --reachability --scanners misconfig,vuln,secret --db-repository=registry.aquasec.com/trivy-db:2 --checks-bundle-repository=registry.aquasec.com/trivy-checks:1 --java-db-repository=registry.aquasec.com/trivy-java-db:1 /github/workspace
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
@@ -42,3 +42,5 @@ jobs:
           AQUA_URL: ${{ vars.AQUA_URL }}
           CSPM_URL: ${{ vars.CSPM_URL }}
           TRIVY_RUN_AS_PLUGIN: "aqua"
+          TRIVY_USERNAME: ${{ secrets.TRIVY_USERNAME }}
+          TRIVY_PASSWORD: ${{ secrets.TRIVY_PASSWORD }}
