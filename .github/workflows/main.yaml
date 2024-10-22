@@ -34,6 +34,7 @@ jobs:
       - name: Run Trivy scan
         run: |
           docker run \
+          -e TRIGGERED_BY: PR \
           -e AQUA_KEY="${{ secrets.AQUA_KEY }}" \
           -e AQUA_SECRET="${{ secrets.AQUA_SECRET }}" \
           -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
